@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract OrganSupplyChain {
+    enum OrganState { Died, Harvested, Packaged, Transit, Delivered, SurgeryOngoing, Implanted }
+
+    struct Organ {
+        OrganState state;
+        address currentOwner;
+    }
+
+    mapping (uint256 => Organ) organs;
+    uint256 public organCount; // Track the number of organs
+
+    event OrganStateChanged(uint256 indexed organId, OrganState newState);
+
+    modifier onlyOwner(uint256 organId) {
+        require(organs[organId].currentOwner == msg.sender, "Only organ owner can perform this action");
+        _;
+    }
+
+    function createOrgan() public returns (uint256) {
+        uint256 newOrganId = organCount++; // Increment organCount to get a new ID
+        organs[newOrganId].state = OrganState.Harvested;
+        organs[newOrganId].currentOwner = msg.sender;
+        emit OrganStateChanged(newOrganId, OrganState.Harvested);
+        return newOrganId;
+    }
+
+    function getOrganState(uint256 organId) public view returns (OrganState) {
+        return organs[organId].state;
+    }
+
+    function getOrganOwner(uint256 organId) public view returns (address) {
+        return organs[organId].currentOwner;
+    }
+}

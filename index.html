@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organ Supply Chain</title>
+</head>
+<body>
+  <h1>Organ Supply Chain</h1>
+  <div>
+    <label for="organId">Organ ID:</label>
+    <input type="text" id="organId">
+    <button onclick="getOrganState()">Get State</button>
+  </div>
+  <div id="stateResult"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.3.0/dist/web3.min.js"></script>
+  <script>
+    const web3 = new Web3('http://localhost:7545'); // Connect to Ganache
+    const contractAddress = 'CONTRACT_ADDRESS'; // Replace with the deployed contract address
+    const abi = [
+      // Contract ABI
+    ];
+    const contract = new web3.eth.Contract(abi, contractAddress);
+
+    async function getOrganState() {
+      const organId = document.getElementById('organId').value;
+      try {
+        const state = await contract.methods.getOrganState(organId).call();
+        document.getElementById('stateResult').innerText = `State of organ ${organId}: ${getStateName(state)}`;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function getStateName(state) {
+      switch (parseInt(state)) {
+        case 0: return 'Died';
+        case 1: return 'Harvested';
+        case 2: return 'Packaged';
+        case 3: return 'Transit';
+        case 4: return 'Delivered';
+        case 5: return 'Surgery Ongoing';
+        case 6: return 'Implanted';
+        default: return 'Unknown';
+      }
+    }
+  </script>
+</body>
+</html>
