@@ -6,162 +6,128 @@
     <title>Organ Supply Chain</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
     <script>
+        let web3;
+        let contract;
+        const contractAddress = '0xf8e81D47203A594245E36C48e151709F0C19fBe8'; // Replace with actual deployed contract
+        const contractABI = [
+            {
+                "constant": false,
+                "inputs": [],
+                "name": "createOrgan",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "organId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getOrganState",
+                "outputs": [
+                    {
+                        "internalType": "enum OrganSupplyChain.OrganState",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "organId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getOrganOwner",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "payable": false,
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
         async function loadWeb3() {
             if (window.ethereum) {
-                window.web3 = new Web3(window.ethereum);
+                web3 = new Web3(window.ethereum);
                 await window.ethereum.enable();
             } else {
-                console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+                console.log('Non-Ethereum browser detected. Try MetaMask!');
             }
+            contract = new web3.eth.Contract(contractABI, contractAddress);
         }
 
         async function storeOrgan() {
-            const contractAddress = '0xf8e81D47203A594245E36C48e151709F0C19fBe8';
-            const contractABI = [
-                {
-                    "constant": false,
-                    "inputs": [],
-                    "name": "createOrgan",
-                    "outputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "",
-                            "type": "uint256"
-                        }
-                    ],
-                    "payable": false,
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                },
-                {
-                    "constant": true,
-                    "inputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "organId",
-                            "type": "uint256"
-                        }
-                    ],
-                    "name": "getOrganState",
-                    "outputs": [
-                        {
-                            "internalType": "enum OrganSupplyChain.OrganState",
-                            "name": "",
-                            "type": "uint8"
-                        }
-                    ],
-                    "payable": false,
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                {
-                    "constant": true,
-                    "inputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "organId",
-                            "type": "uint256"
-                        }
-                    ],
-                    "name": "getOrganOwner",
-                    "outputs": [
-                        {
-                            "internalType": "address",
-                            "name": "",
-                            "type": "address"
-                        }
-                    ],
-                    "payable": false,
-                    "stateMutability": "view",
-                    "type": "function"
-                }
-            ];
-
-            const web3 = window.web3;
-            const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-            // Call the createOrgan function to create a new organ
-            const result = await contract.methods.createOrgan().send({ from: web3.eth.defaultAccount });
-
-            console.log("New Organ ID:", result.events.OrganStateChanged.returnValues.organId);
+            const accounts = await web3.eth.getAccounts();
+            try {
+                const result = await contract.methods.createOrgan().send({ from: accounts[0] });
+                console.log("New Organ ID:", result.events.OrganStateChanged.returnValues.organId);
+            } catch (error) {
+                console.error("Error creating organ:", error);
+            }
         }
 
-        async function retrieveOrganDetails(organId) {
-            const contractAddress = '0xf8e81D47203A594245E36C48e151709F0C19fBe8';
-            const contractABI = [
-                {
-                    "constant": false,
-                    "inputs": [],
-                    "name": "createOrgan",
-                    "outputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "",
-                            "type": "uint256"
-                        }
-                    ],
-                    "payable": false,
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                },
-                {
-                    "constant": true,
-                    "inputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "organId",
-                            "type": "uint256"
-                        }
-                    ],
-                    "name": "getOrganState",
-                    "outputs": [
-                        {
-                            "internalType": "enum OrganSupplyChain.OrganState",
-                            "name": "",
-                            "type": "uint8"
-                        }
-                    ],
-                    "payable": false,
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                {
-                    "constant": true,
-                    "inputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "organId",
-                            "type": "uint256"
-                        }
-                    ],
-                    "name": "getOrganOwner",
-                    "outputs": [
-                        {
-                            "internalType": "address",
-                            "name": "",
-                            "type": "address"
-                        }
-                    ],
-                    "payable": false,
-                    "stateMutability": "view",
-                    "type": "function"
-                }
-            ];
+        async function retrieveOrganDetails() {
+            const organId = document.getElementById('organId').value;
+            try {
+                const state = await contract.methods.getOrganState(organId).call();
+                const owner = await contract.methods.getOrganOwner(organId).call();
+                document.getElementById('stateResult').innerHTML = `
+                    <p><strong>Organ State:</strong> ${getStateName(state)}</p>
+                    <p><strong>Organ Owner:</strong> ${owner}</p>
+                `;
+            } catch (error) {
+                console.error("Error retrieving details:", error);
+            }
+        }
 
-            const web3 = window.web3;
-            const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-            // Call the getOrganState and getOrganOwner functions to retrieve organ details
-            const state = await contract.methods.getOrganState(organId).call();
-            const owner = await contract.methods.getOrganOwner(organId).call();
-
-            console.log("Organ State:", state);
-            console.log("Organ Owner:", owner);
+        function getStateName(state) {
+            switch (parseInt(state)) {
+                case 0: return 'Died';
+                case 1: return 'Harvested';
+                case 2: return 'Packaged';
+                case 3: return 'Transit';
+                case 4: return 'Delivered';
+                case 5: return 'Surgery Ongoing';
+                case 6: return 'Implanted';
+                default: return 'Unknown';
+            }
         }
     </script>
 </head>
 <body onload="loadWeb3()">
+    <h1>Organ Supply Chain</h1>
+
     <button onclick="storeOrgan()">Store Organ</button>
-    <button onclick="retrieveOrganDetails(0)">Retrieve Organ Details</button> <!-- Pass organ ID here -->
+
+    <div>
+        <label for="organId">Enter Organ ID:</label>
+        <input type="text" id="organId">
+        <button onclick="retrieveOrganDetails()">Retrieve Organ Details</button>
+    </div>
+
+    <div id="stateResult"></div>
 </body>
 </html>
